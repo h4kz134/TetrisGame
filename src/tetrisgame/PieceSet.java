@@ -13,6 +13,9 @@ import java.util.ArrayList;
  *
  * @author rhett
  */
+
+//ENUM
+//SQUARE( TRUE TRUE TURE)
 public final class PieceSet extends ArrayList<Piece> {
 
     public PieceSet() {

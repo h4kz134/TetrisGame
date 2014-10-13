@@ -21,20 +21,8 @@ public class Piece {
        this.structure = structure; 
     }
     
-    public void setPosition(int x, int y){
-        this.X = x;
-        this.Y = y;
-    }
-
-    public int getX() {
-        return X;
-    }
-
-    public int getY() {
-        return Y;
-    }
-    
-    public void rotate(){//CLOCKWISE only
+    public void rotate(){
+        //Rotate matrix by tranposing and fliping
         boolean[][] temp = new boolean[structure[0].length][structure.length];
         
         //Transpose
@@ -45,8 +33,8 @@ public class Piece {
         }
         
         //Calculate Offset
-        X += (int)((temp[0].length - structure[0].length)/2.0);
-        Y += (int)((temp.length - structure.length)/2.0);
+        setX(getX() + (int)((temp[0].length - structure[0].length)/2.0));
+        setY(getY() + (int)((temp.length - structure.length)/2.0));
         
         structure = new boolean[temp.length][temp[0].length];
         
@@ -73,5 +61,26 @@ public class Piece {
             }
             System.out.println();
         }
+    }
+    
+    public void setPosition(int x, int y){
+        this.setX(x);
+        this.setY(y);
+    }
+
+    public int getX() {
+        return X;
+    }
+
+    public int getY() {
+        return Y;
+    }
+    
+    public void setX(int X) {
+        this.X = X;
+    }
+
+    public void setY(int Y) {
+        this.Y = Y;
     }
 }
