@@ -8,7 +8,7 @@ import java.util.Random;
  */
 public class GameWorld {
     /*CONSTANTS*/
-	
+
     /*For printing and clearing*/
     public static final int MOVING = 1;
     public static final int STATIC = 2;    
@@ -64,10 +64,9 @@ public class GameWorld {
     }
     
     public void movePiece(int dir){
-        //Revise for collision
 	switch(dir){
 		case DOWN:
-			getCurr_piece().setY(getCurr_piece().getY()+1);
+                        getCurr_piece().setY(getCurr_piece().getY()+1);
                         if(layersColllied()){//rollback move if collieded
                             getCurr_piece().setY(getCurr_piece().getY()-1);
                             moveToStatic();
@@ -89,7 +88,6 @@ public class GameWorld {
     }
     
     public void rotatePiece(){
-	//Revise for collision
         getCurr_piece().rotate();
         if(layersColllied())//rollback move if collieded
             getCurr_piece().rotate();
@@ -146,7 +144,6 @@ public class GameWorld {
     
     public void updateMovingLayer() {
         clearLayer(MOVING);
-        
         for(int y = 0; y < getCurr_piece().getStructure()[0].length; y++){
             for(int x = 0; x < getCurr_piece().getStructure().length; x++){
                 //Note: Revise for collision
@@ -206,16 +203,10 @@ public class GameWorld {
         return static_layer;
     }
 
-    /**
-     * @return the curr_piece
-     */
     public Piece getCurr_piece() {
         return curr_piece;
     }
 
-    /**
-     * @return the prev_piece
-     */
     public Piece getPrev_piece() {
         return prev_piece;
     }

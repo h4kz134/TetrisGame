@@ -3,3 +3,10 @@ dist/lib/golden_0_2_3.jar
 dist/TetrisGame.jar
 dist/TetrisGame.jar
 nbproject/project.properties
+build/classes/tetrisgame/GameWorld.class
+build/classes/tetrisgame/MakeGame.class
+build/classes/tetrisgame/Main.class
+build/classes/tetrisgame/ImageAssets.class
+nbproject/build-impl.xml
+nbproject/private/config.properties
+nbproject/private/private.properties
