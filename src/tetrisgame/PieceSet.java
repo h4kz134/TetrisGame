@@ -50,10 +50,10 @@ public final class PieceSet extends ArrayList<Piece> {
             {true, true, false},
         });
         
-        //Left Z
+        //Right Z
         addPiece(new boolean[][]{
-            {false, true, true},
             {true, true, false},
+            {false, true, true},
         });
         
         //T

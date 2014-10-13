@@ -84,8 +84,9 @@ public class MakeGame extends GameObject {
             world.movePiece(GameWorld.RIGHT);
         } else if ((keyPressed(KeyEvent.VK_S) || keyPressed(KeyEvent.VK_DOWN))) {
             world.movePiece(GameWorld.DOWN);
+        } else if (keyPressed(KeyEvent.VK_SPACE)) {
+            world.quickDrop();
         }
-        //Note: Also implement Quick Drop
     }
 
     //Initialize the border

@@ -24,7 +24,7 @@ public class GameWorld {
     public static final int ROW = 20;//y
     
     /*Default starting position*/
-    private static final int DEFAULT_X = 0;
+    private static final int DEFAULT_X = 4;
     private static final int DEFAULT_Y = 0;
     
     /*ATTRIBUTES*/
@@ -72,6 +72,7 @@ public class GameWorld {
                             getCurr_piece().setY(getCurr_piece().getY()-1);
                             updateMovingLayer();
                             moveToStatic();
+                            checkCompletedLines();
                             spawnNewPiece();
                         }
 			break;
@@ -92,6 +93,18 @@ public class GameWorld {
                         }
                         break;    
 	}
+    }
+    
+    public void quickDrop(){
+        while(!collision()){
+            getCurr_piece().setY(getCurr_piece().getY()+1);
+            updateMovingLayer();
+        }
+        getCurr_piece().setY(getCurr_piece().getY()-1);
+        updateMovingLayer();
+        moveToStatic();
+        checkCompletedLines();
+        spawnNewPiece();
     }
     
     public void rotatePiece(){
@@ -128,13 +141,13 @@ public class GameWorld {
         }
     }
     
-    public int checkCompletedLines(){//Returns number of completed lines
+    public int checkCompletedLines(){//Remove and then Returns number of completed lines
         int lines_completed = 0;
         
         for(int y = 0; y < ROW; y++){
             boolean complete = true;
             int x = 0;
-            while(x < ROW){
+            while(x < COL){
                 if(static_layer[y][x] == 0)
                     complete = false;
                 x++;
@@ -145,7 +158,7 @@ public class GameWorld {
                 
             for(int Y = y-1; Y >= 0; Y--){
                 for(int X = 0; X < COL; X++){
-                    static_layer[y+1][x] = static_layer[y][x];
+                    static_layer[Y+1][X] = static_layer[Y][X];
                 }
             }
             }
