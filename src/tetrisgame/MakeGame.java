@@ -4,6 +4,7 @@ import com.golden.gamedev.GameEngine;
 import com.golden.gamedev.GameObject;
 import com.golden.gamedev.object.Sprite;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -22,7 +23,7 @@ public class MakeGame extends GameObject {
     private ArrayList<BufferedImage> blocks;
     
     //GAME SETTINGS
-    private final int delay = 10;
+    private final int DELAY = 100;
     private int timer;
 
     public MakeGame(GameEngine ge) {
@@ -43,12 +44,19 @@ public class MakeGame extends GameObject {
         
         updateWorldSprites();
         
-        timer = 0;
+        timer = 1;
     }
 
     @Override
     public void update(long l) {
-        timer = (timer + 1) % delay;
+        timer = (timer + 1) % DELAY;
+        listenInput();
+        
+        if(timer == 0){
+            world.movePiece(GameWorld.DOWN);
+        }
+        
+        updateWorldSprites();//Refresh
     }
 
     @Override
@@ -64,6 +72,20 @@ public class MakeGame extends GameObject {
                 s.render(gd);
             }
         }
+    }
+    
+    //Input Listener
+    private void listenInput(){
+        if ((keyPressed(KeyEvent.VK_W) || keyPressed(KeyEvent.VK_UP))) {
+            world.rotatePiece();
+        } else if ((keyPressed(KeyEvent.VK_A) || keyPressed(KeyEvent.VK_LEFT))) {
+            world.movePiece(GameWorld.LEFT);
+        } else if ((keyPressed(KeyEvent.VK_D) || keyPressed(KeyEvent.VK_RIGHT))) {
+            world.movePiece(GameWorld.RIGHT);
+        } else if ((keyPressed(KeyEvent.VK_S) || keyPressed(KeyEvent.VK_DOWN))) {
+            world.movePiece(GameWorld.DOWN);
+        }
+        //Note: Also implement Quick Drop
     }
 
     //Initialize the border
@@ -93,8 +115,7 @@ public class MakeGame extends GameObject {
     private void updateWorldSprites() {
         for (int y = 0; y < 20; y++) {
             for (int x = 0; x < 10; x++) {
-                if(world.getStatic_layer()[y][x] != 0)
-                    world_sprites.get(y).get(x).setImage(blocks.get(world.getStatic_layer()[y][x]));
+                world_sprites.get(y).get(x).setImage(blocks.get(world.getStatic_layer()[y][x]));
                 if(world.getMoving_layer()[y][x] != 0)
                     world_sprites.get(y).get(x).setImage(blocks.get(world.getMoving_layer()[y][x]));
             }

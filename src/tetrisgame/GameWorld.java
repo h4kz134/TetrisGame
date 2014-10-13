@@ -24,7 +24,7 @@ public class GameWorld {
     public static final int ROW = 20;//y
     
     /*Default starting position*/
-    private static final int DEFAULT_X = 4;
+    private static final int DEFAULT_X = 0;
     private static final int DEFAULT_Y = 0;
     
     /*ATTRIBUTES*/
@@ -67,42 +67,54 @@ public class GameWorld {
 	switch(dir){
 		case DOWN:
                         getCurr_piece().setY(getCurr_piece().getY()+1);
-                        if(layersColllied()){//rollback move if collieded
+                        updateMovingLayer();
+                        if(collision()){//rollback move if collied
                             getCurr_piece().setY(getCurr_piece().getY()-1);
+                            updateMovingLayer();
                             moveToStatic();
                             spawnNewPiece();
                         }
 			break;
 		case RIGHT:
 			getCurr_piece().setX(getCurr_piece().getX()+1);
-                        if(layersColllied())//rollback move if collieded
+                        updateMovingLayer();
+                        if(collision()){//rollback move if collied
                             getCurr_piece().setX(getCurr_piece().getX()-1);
+                            updateMovingLayer();
+                        }
                         break;
 		case LEFT:
 			getCurr_piece().setX(getCurr_piece().getX()-1);
-                        if(layersColllied())//rollback move if collieded
+                        updateMovingLayer();
+                        if(collision()){//rollback move if collied
                             getCurr_piece().setX(getCurr_piece().getX()+1);
+                            updateMovingLayer();
+                        }
                         break;    
 	}
-        updateMovingLayer();
     }
     
     public void rotatePiece(){
         getCurr_piece().rotate();
-        if(layersColllied())//rollback move if collieded
+        if(collision())//adjust move if collieded
             getCurr_piece().rotate();
         updateMovingLayer();        
     }
 	
-    private boolean layersColllied(){
-        for(int y = 0; y < ROW; y++){
-            for(int x = 0; x < COL; x++){
-                if(moving_layer[y][x] != 0 && static_layer[y][x] != 0){
-                    return true;
+    private boolean collision(){
+        if(curr_piece.getX() >= 0 && curr_piece.getX()+curr_piece.getStructure().length <= COL && curr_piece.getY()+curr_piece.getStructure()[0].length <= ROW){
+            for(int y = 0; y < ROW; y++){
+                for(int x = 0; x < COL; x++){
+                    if(moving_layer[y][x] != 0 && static_layer[y][x] != 0){
+                        return true;
+                    }
                 }
             }
+            return false;
         }
-	return false;
+        else{
+           return true;
+        }
     }
     
     private void moveToStatic(){
@@ -146,7 +158,6 @@ public class GameWorld {
         clearLayer(MOVING);
         for(int y = 0; y < getCurr_piece().getStructure()[0].length; y++){
             for(int x = 0; x < getCurr_piece().getStructure().length; x++){
-                //Note: Revise for collision
                 if(getCurr_piece().getY() + y >= 0 && getCurr_piece().getX() + x >= 0 && getCurr_piece().getY() + y < ROW && getCurr_piece().getX() + x < COL){
                     if(getCurr_piece().getStructure(x, y)){
                     moving_layer[getCurr_piece().getY() + y][getCurr_piece().getX() + x] = piece_set.indexOf(getCurr_piece()) + 1;
