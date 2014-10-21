@@ -11,178 +11,198 @@ public class GameWorld {
 
     /*For printing and clearing*/
     public static final int MOVING = 1;
-    public static final int STATIC = 2;    
-	
+    public static final int STATIC = 2;
+
     /*For moving pieces*/
     public static final int LEFT = 1;
     public static final int RIGHT = 2;
     public static final int DOWN = 3;
     public static final int UP = 4;
-    
+
     /*World size*/
     public static final int COL = 10;//x
     public static final int ROW = 20;//y
-    
+
     /*Default starting position*/
     private static final int DEFAULT_X = 4;
     private static final int DEFAULT_Y = 0;
-    
+
     /*ATTRIBUTES*/
     private int[][] moving_layer;//2d array layer for moving piece
     private int[][] static_layer;//2d array layer for collied pieces
 
     private PieceSet piece_set;//ArrayList of Pieces
-	
+
     private Piece curr_piece;//Holds current piece
     private Piece prev_piece;//Holds previous piece
-    
+
+    private int last_piece;
+
     //QUEUE 3 stored pieces
-    
     Random rand = new Random();//For spawning new piece
 
     /*METHODS*/
     public GameWorld() {
-	//Initialize
+        //Initialize
         moving_layer = new int[ROW][COL];
         static_layer = new int[ROW][COL];
         piece_set = new PieceSet();
-        
+
         curr_piece = piece_set.get(rand.nextInt(piece_set.size()));
         prev_piece = piece_set.get(rand.nextInt(piece_set.size()));
-        
+
         getCurr_piece().setPosition(DEFAULT_X, DEFAULT_Y);
         updateMovingLayer();
     }
-    
-    private void spawnNewPiece(){
-	//Revise to spawn in prev_piece
+
+    private void spawnNewPiece() {
+        //Revise to spawn in prev_piece
         curr_piece = getPrev_piece();
-        prev_piece = piece_set.get(rand.nextInt(piece_set.size()));
+        int temp = rand.nextInt(piece_set.size()); // Get Next piece
+
+        //Loop to get a different piece compared to the last piece
+        while (temp == last_piece) {
+            temp = rand.nextInt(piece_set.size());
+        }
+
+        //Checks if the next piece could be the same as the spawned piece.
+        if (rand.nextInt(2) == 0) {
+            last_piece = -2;
+        } else {
+            last_piece = temp;
+        }
         
+        prev_piece = piece_set.get(temp);
+
         getCurr_piece().setPosition(DEFAULT_X, DEFAULT_Y);
         updateMovingLayer();
     }
-    
-    public void movePiece(int dir){
-	switch(dir){
-		case DOWN:
-                        getCurr_piece().setY(getCurr_piece().getY()+1);
-                        updateMovingLayer();
-                        if(collision()){//rollback move if collied
-                            getCurr_piece().setY(getCurr_piece().getY()-1);
-                            updateMovingLayer();
-                            moveToStatic();
-                            checkCompletedLines();
-                            spawnNewPiece();
-                        }
-			break;
-		case RIGHT:
-			getCurr_piece().setX(getCurr_piece().getX()+1);
-                        updateMovingLayer();
-                        if(collision()){//rollback move if collied
-                            getCurr_piece().setX(getCurr_piece().getX()-1);
-                            updateMovingLayer();
-                        }
-                        break;
-		case LEFT:
-			getCurr_piece().setX(getCurr_piece().getX()-1);
-                        updateMovingLayer();
-                        if(collision()){//rollback move if collied
-                            getCurr_piece().setX(getCurr_piece().getX()+1);
-                            updateMovingLayer();
-                        }
-                        break;    
-	}
+
+    public void movePiece(int dir) {
+        switch (dir) {
+            case DOWN:
+                getCurr_piece().setY(getCurr_piece().getY() + 1);
+                updateMovingLayer();
+                
+                if (collision()) { //rollback move if collied
+                    getCurr_piece().setY(getCurr_piece().getY() - 1);
+                    updateMovingLayer();
+                    moveToStatic();
+                    spawnNewPiece();
+                    checkCompletedLines();
+                }
+                break;
+            case RIGHT:
+                getCurr_piece().setX(getCurr_piece().getX() + 1);
+                updateMovingLayer();
+                
+                if (collision()) {//rollback move if collied
+                    getCurr_piece().setX(getCurr_piece().getX() - 1);
+                    updateMovingLayer();
+                }
+                break;
+            case LEFT:
+                getCurr_piece().setX(getCurr_piece().getX() - 1);
+                updateMovingLayer();
+                
+                if (collision()) {//rollback move if collied
+                    getCurr_piece().setX(getCurr_piece().getX() + 1);
+                    updateMovingLayer();
+                }
+                break;
+        }
     }
-    
-    public void quickDrop(){
-        while(!collision()){
-            getCurr_piece().setY(getCurr_piece().getY()+1);
+
+    public void quickDrop() {
+        while (!collision()) {
+            getCurr_piece().setY(getCurr_piece().getY() + 1);
             updateMovingLayer();
         }
-        getCurr_piece().setY(getCurr_piece().getY()-1);
+        getCurr_piece().setY(getCurr_piece().getY() - 1);
         updateMovingLayer();
         moveToStatic();
-        checkCompletedLines();
         spawnNewPiece();
+        checkCompletedLines();
     }
-    
-    public void rotatePiece(){
+
+    public void rotatePiece() {
         getCurr_piece().rotate();
-        if(collision())//adjust move if collieded
+        if (collision())//adjust move if collieded
+        {
             getCurr_piece().rotate();
-        updateMovingLayer();        
+        }
+        updateMovingLayer();
     }
-	
-    private boolean collision(){
-        if(curr_piece.getX() >= 0 && curr_piece.getX()+curr_piece.getStructure().length <= COL && curr_piece.getY()+curr_piece.getStructure()[0].length <= ROW){
-            for(int y = 0; y < ROW; y++){
-                for(int x = 0; x < COL; x++){
-                    if(moving_layer[y][x] != 0 && static_layer[y][x] != 0){
+
+    private boolean collision() {
+        if (curr_piece.getX() >= 0 && curr_piece.getX() + curr_piece.getStructure().length <= COL && curr_piece.getY() + curr_piece.getStructure()[0].length <= ROW) {
+            for (int y = 0; y < ROW; y++) {
+                for (int x = 0; x < COL; x++) {
+                    if (moving_layer[y][x] != 0 && static_layer[y][x] != 0) {
                         return true;
                     }
                 }
             }
             return false;
-        }
-        else{
-           return true;
+        } else {
+            return true;
         }
     }
-    
-    private void moveToStatic(){
-        for(int y = 0; y < ROW; y++){
-            for(int x = 0; x < COL; x++){
-                if(moving_layer[y][x] != 0 && static_layer[y][x] == 0){
+
+    private void moveToStatic() {
+        for (int y = 0; y < ROW; y++) {
+            for (int x = 0; x < COL; x++) {
+                if (moving_layer[y][x] != 0 && static_layer[y][x] == 0) {
                     static_layer[y][x] = moving_layer[y][x];
                     moving_layer[y][x] = 0;
                 }
             }
         }
     }
-    
-    public int checkCompletedLines(){//Remove and then Returns number of completed lines
+
+    public int checkCompletedLines() {//Remove and then Returns number of completed lines
         int lines_completed = 0;
-        
-        for(int y = 0; y < ROW; y++){
+
+        for (int y = 0; y < ROW; y++) {
             boolean complete = true;
             int x = 0;
-            while(x < COL){
-                if(static_layer[y][x] == 0)
+            while (x < COL) {
+                if (static_layer[y][x] == 0) {
                     complete = false;
+                }
                 x++;
             }
-            
-            if(complete){
+
+            if (complete) {
                 lines_completed++;
-                
-            for(int Y = y-1; Y >= 0; Y--){
-                for(int X = 0; X < COL; X++){
-                    static_layer[Y+1][X] = static_layer[Y][X];
-                }
-            }
-            }
-        }
-        
-        return lines_completed;
-    }
-    
-    public void updateMovingLayer() {
-        clearLayer(MOVING);
-        for(int y = 0; y < getCurr_piece().getStructure()[0].length; y++){
-            for(int x = 0; x < getCurr_piece().getStructure().length; x++){
-                if(getCurr_piece().getY() + y >= 0 && getCurr_piece().getX() + x >= 0 && getCurr_piece().getY() + y < ROW && getCurr_piece().getX() + x < COL){
-                    if(getCurr_piece().getStructure(x, y)){
-                    moving_layer[getCurr_piece().getY() + y][getCurr_piece().getX() + x] = piece_set.indexOf(getCurr_piece()) + 1;
+
+                for (int Y = y - 1; Y >= 0; Y--) {
+                    for (int X = 0; X < COL; X++) {
+                        static_layer[Y + 1][X] = static_layer[Y][X];
                     }
                 }
             }
         }
-    }    
-    
-    public void clearLayer(int l){//MOVING or STATIC
+
+        return lines_completed;
+    }
+
+    public void updateMovingLayer() {
+        clearLayer(MOVING);
+        for (int y = 0; y < getCurr_piece().getStructure()[0].length; y++) {
+            for (int x = 0; x < getCurr_piece().getStructure().length; x++) {
+                if (getCurr_piece().getY() + y >= 0 && getCurr_piece().getX() + x >= 0 && getCurr_piece().getY() + y < ROW && getCurr_piece().getX() + x < COL) {
+                    if (getCurr_piece().getStructure(x, y)) {
+                        moving_layer[getCurr_piece().getY() + y][getCurr_piece().getX() + x] = piece_set.indexOf(getCurr_piece()) + 1;
+                    }
+                }
+            }
+        }
+    }
+
+    public void clearLayer(int l) {//MOVING or STATIC
         int[][] layer;
-        switch(l){
+        switch (l) {
             case MOVING:
                 layer = getMoving_layer();
                 break;
@@ -192,16 +212,16 @@ public class GameWorld {
             default:
                 layer = getMoving_layer();
         }
-        for(int y = 0; y < ROW; y++){
-            for(int x = 0; x < COL; x++){
+        for (int y = 0; y < ROW; y++) {
+            for (int x = 0; x < COL; x++) {
                 layer[y][x] = 0;
             }
         }
     }
-    
-    public void printLayer(int l){//MOVING or STATIC
+
+    public void printLayer(int l) {//MOVING or STATIC
         int[][] layer;
-        switch(l){
+        switch (l) {
             case MOVING:
                 layer = getMoving_layer();
                 break;
@@ -211,14 +231,14 @@ public class GameWorld {
             default:
                 layer = getMoving_layer();
         }
-        for(int y = 0; y < ROW; y++){
-            for(int x = 0; x < COL; x++){
+        for (int y = 0; y < ROW; y++) {
+            for (int x = 0; x < COL; x++) {
                 System.out.print(layer[y][x]);
             }
             System.out.println();
         }
     }
-	
+
     public int[][] getMoving_layer() {
         return moving_layer;
     }

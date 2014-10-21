@@ -3,68 +3,59 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package tetrisgame;
 
 import java.util.ArrayList;
-
 
 /**
  *
  * @author rhett
  */
-
 //ENUM
 //SQUARE( TRUE TRUE TURE)
 public final class PieceSet extends ArrayList<Piece> {
 
     public PieceSet() {
         /*DEFAULT PIECES*/
-        
+
         //Line
         addPiece(new boolean[][]{
-            {true,true,true,true}
+            {true, true, true, true}
         });
-        
-        //Square
-        addPiece(new boolean[][]{
-            {true,true},
-            {true,true}
-        });
-        
+
         //Left L
         addPiece(new boolean[][]{
             {true, true, true},
-            {false, false, true},
-        });
-        
+            {false, false, true},});
+
         //Right L
         addPiece(new boolean[][]{
             {false, false, true},
-            {true, true, true},
+            {true, true, true},});
+
+        //Square
+        addPiece(new boolean[][]{
+            {true, true},
+            {true, true}
         });
-        
+
         //Left Z
         addPiece(new boolean[][]{
             {false, true, true},
-            {true, true, false},
-        });
-        
-        //Right Z
-        addPiece(new boolean[][]{
-            {true, true, false},
-            {false, true, true},
-        });
-        
+            {true, true, false},});
+
         //T
         addPiece(new boolean[][]{
             {true, true, true},
-            {false, true, false},
-        });
-        
+            {false, true, false},});
+
+        //Right Z
+        addPiece(new boolean[][]{
+            {true, true, false},
+            {false, true, true},});
     }
 
-    public void addPiece(boolean[][] b){
+    public void addPiece(boolean[][] b) {
         add(new Piece(b));
-    }    
+    }
 }

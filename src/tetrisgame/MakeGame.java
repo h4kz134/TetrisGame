@@ -9,22 +9,28 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class MakeGame extends GameObject {
+
     //CONSTANTS
     private final int BLOCKSIZE = 32;
-    
+
     //GAME WORLD
     GameWorld world;
-    
+
     //ASSETS
     private ArrayList<Sprite> gameBorder;
     private ArrayList<ArrayList<Sprite>> world_sprites;
-    
+
     //IMAGE ASSETS
     private ArrayList<BufferedImage> blocks;
-    
+
     //GAME SETTINGS
     private final int DELAY = 100;
+    private final int KEY_DELAY = 12;
+
+    //Counters
+    private int keyTimer;
     private int timer;
+    private int score;
 
     public MakeGame(GameEngine ge) {
         super(ge);
@@ -35,27 +41,31 @@ public class MakeGame extends GameObject {
         gameBorder = new ArrayList();
         world_sprites = new ArrayList();
         blocks = new ArrayList();
-        
+
         world = new GameWorld();
-                
+
         initializeBorder();
         initializeBlockImages();
         initializeBG();
-        
+
         updateWorldSprites();
-        
+        resetGame();
+    }
+
+    private void resetGame() {
         timer = 1;
+        score = 0;
     }
 
     @Override
     public void update(long l) {
         timer = (timer + 1) % DELAY;
         listenInput();
-        
-        if(timer == 0){
+
+        if (timer == 0) {
             world.movePiece(GameWorld.DOWN);
         }
-        
+
         updateWorldSprites();//Refresh
     }
 
@@ -68,24 +78,35 @@ public class MakeGame extends GameObject {
 
         //Render the world sprites
         for (ArrayList<Sprite> a : world_sprites) {
-            for(Sprite s: a){
+            for (Sprite s : a) {
                 s.render(gd);
             }
         }
     }
-    
+
     //Input Listener
-    private void listenInput(){
+    private void listenInput() {
         if ((keyPressed(KeyEvent.VK_W) || keyPressed(KeyEvent.VK_UP))) {
             world.rotatePiece();
-        } else if ((keyPressed(KeyEvent.VK_A) || keyPressed(KeyEvent.VK_LEFT))) {
-            world.movePiece(GameWorld.LEFT);
-        } else if ((keyPressed(KeyEvent.VK_D) || keyPressed(KeyEvent.VK_RIGHT))) {
-            world.movePiece(GameWorld.RIGHT);
-        } else if ((keyPressed(KeyEvent.VK_S) || keyPressed(KeyEvent.VK_DOWN))) {
-            world.movePiece(GameWorld.DOWN);
+        } else if ((keyDown(KeyEvent.VK_A) || keyDown(KeyEvent.VK_LEFT))) {
+            if (keyTimer == 0) {
+                world.movePiece(GameWorld.LEFT);
+            }
+            keyTimer = (keyTimer + 1) % KEY_DELAY;
+        } else if ((keyDown(KeyEvent.VK_D) || keyDown(KeyEvent.VK_RIGHT))) {
+            if (keyTimer == 0) {
+                world.movePiece(GameWorld.RIGHT);
+            }
+            keyTimer = (keyTimer + 1) % KEY_DELAY;
+        } else if ((keyDown(KeyEvent.VK_S) || keyDown(KeyEvent.VK_DOWN))) {
+            if (keyTimer == 0) {
+                world.movePiece(GameWorld.DOWN);
+            }
+            keyTimer = (keyTimer + 1) % Math.min(KEY_DELAY, DELAY / 2);
         } else if (keyPressed(KeyEvent.VK_SPACE)) {
             world.quickDrop();
+        } else {
+            keyTimer = 0;
         }
     }
 
@@ -99,15 +120,15 @@ public class MakeGame extends GameObject {
             }
         }
     }
-    
+
     //Initialize the background
     private void initializeBG() {
         for (int y = 0; y < 20; y++) {
-            world_sprites.add(new ArrayList<Sprite>());
-            
+            world_sprites.add(new ArrayList());
+
             for (int x = 0; x < 10; x++) {
                 world_sprites.get(y).add(
-                        new Sprite(blocks.get(0), (x+1) * BLOCKSIZE, (y+1) * BLOCKSIZE));
+                        new Sprite(blocks.get(0), (x + 1) * BLOCKSIZE, (y + 1) * BLOCKSIZE));
             }
         }
     }
@@ -117,8 +138,9 @@ public class MakeGame extends GameObject {
         for (int y = 0; y < 20; y++) {
             for (int x = 0; x < 10; x++) {
                 world_sprites.get(y).get(x).setImage(blocks.get(world.getStatic_layer()[y][x]));
-                if(world.getMoving_layer()[y][x] != 0)
+                if (world.getMoving_layer()[y][x] != 0) {
                     world_sprites.get(y).get(x).setImage(blocks.get(world.getMoving_layer()[y][x]));
+                }
             }
         }
     }
