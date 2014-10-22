@@ -25,7 +25,7 @@ public class GameWorld {
 
     /*Default starting position*/
     private static final int DEFAULT_X = 4;
-    private static final int DEFAULT_Y = 0;
+    private static final int DEFAULT_Y = -2;
 
     /*ATTRIBUTES*/
     private int[][] moving_layer;//2d array layer for moving piece
@@ -71,7 +71,7 @@ public class GameWorld {
         } else {
             last_piece = temp;
         }
-        
+
         prev_piece = piece_set.get(temp);
 
         getCurr_piece().setPosition(DEFAULT_X, DEFAULT_Y);
@@ -83,19 +83,18 @@ public class GameWorld {
             case DOWN:
                 getCurr_piece().setY(getCurr_piece().getY() + 1);
                 updateMovingLayer();
-                
+
                 if (collision()) { //rollback move if collied
                     getCurr_piece().setY(getCurr_piece().getY() - 1);
                     updateMovingLayer();
                     moveToStatic();
                     spawnNewPiece();
-                    checkCompletedLines();
                 }
                 break;
             case RIGHT:
                 getCurr_piece().setX(getCurr_piece().getX() + 1);
                 updateMovingLayer();
-                
+
                 if (collision()) {//rollback move if collied
                     getCurr_piece().setX(getCurr_piece().getX() - 1);
                     updateMovingLayer();
@@ -104,7 +103,7 @@ public class GameWorld {
             case LEFT:
                 getCurr_piece().setX(getCurr_piece().getX() - 1);
                 updateMovingLayer();
-                
+
                 if (collision()) {//rollback move if collied
                     getCurr_piece().setX(getCurr_piece().getX() + 1);
                     updateMovingLayer();
@@ -118,11 +117,11 @@ public class GameWorld {
             getCurr_piece().setY(getCurr_piece().getY() + 1);
             updateMovingLayer();
         }
+
         getCurr_piece().setY(getCurr_piece().getY() - 1);
         updateMovingLayer();
         moveToStatic();
         spawnNewPiece();
-        checkCompletedLines();
     }
 
     public void rotatePiece() {
@@ -253,5 +252,9 @@ public class GameWorld {
 
     public Piece getPrev_piece() {
         return prev_piece;
+    }
+
+    public PieceSet getPieceSet() {
+        return piece_set;
     }
 }

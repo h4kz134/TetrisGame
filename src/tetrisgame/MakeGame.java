@@ -19,9 +19,11 @@ public class MakeGame extends GameObject {
     //ASSETS
     private ArrayList<Sprite> gameBorder;
     private ArrayList<ArrayList<Sprite>> world_sprites;
+    private Sprite nextPieceSprite;
 
     //IMAGE ASSETS
     private ArrayList<BufferedImage> blocks;
+    private ArrayList<BufferedImage> nextBlocks;
 
     //GAME SETTINGS
     private final int DELAY = 100;
@@ -32,6 +34,8 @@ public class MakeGame extends GameObject {
     private int timer;
     private int score;
 
+    int[][] updateGrid;
+
     public MakeGame(GameEngine ge) {
         super(ge);
     }
@@ -41,20 +45,24 @@ public class MakeGame extends GameObject {
         gameBorder = new ArrayList();
         world_sprites = new ArrayList();
         blocks = new ArrayList();
+        nextBlocks = new ArrayList();
 
         world = new GameWorld();
 
         initializeBorder();
         initializeBlockImages();
+        initializeNextBlockImages();
         initializeBG();
 
         updateWorldSprites();
+        nextPieceSprite = new Sprite(416, 32);
         resetGame();
     }
 
     private void resetGame() {
         timer = 1;
         score = 0;
+        updateNextPiecePreview();
     }
 
     @Override
@@ -64,13 +72,18 @@ public class MakeGame extends GameObject {
 
         if (timer == 0) {
             world.movePiece(GameWorld.DOWN);
+            score += world.checkCompletedLines();
+            updateNextPiecePreview();
         }
 
         updateWorldSprites();//Refresh
+        updateNextPiecePreview();
     }
 
     @Override
     public void render(Graphics2D gd) {
+        nextPieceSprite.render(gd);
+
         //Render the game border
         for (Sprite s : gameBorder) {
             s.render(gd);
@@ -82,6 +95,7 @@ public class MakeGame extends GameObject {
                 s.render(gd);
             }
         }
+
     }
 
     //Input Listener
@@ -105,6 +119,7 @@ public class MakeGame extends GameObject {
             keyTimer = (keyTimer + 1) % Math.min(KEY_DELAY, DELAY / 2);
         } else if (keyPressed(KeyEvent.VK_SPACE)) {
             world.quickDrop();
+            score += world.checkCompletedLines();
         } else {
             keyTimer = 0;
         }
@@ -131,6 +146,12 @@ public class MakeGame extends GameObject {
                         new Sprite(blocks.get(0), (x + 1) * BLOCKSIZE, (y + 1) * BLOCKSIZE));
             }
         }
+    }
+
+    private void updateNextPiecePreview() {
+        int pieceID = world.getPieceSet().indexOf(world.getPrev_piece());
+
+        nextPieceSprite.setImage(nextBlocks.get(pieceID));
     }
 
     //Update world sprites
@@ -160,5 +181,18 @@ public class MakeGame extends GameObject {
         blocks.add(getImage("TetrisAssets/Block10.png"));
         blocks.add(getImage("TetrisAssets/Block11.png"));
         blocks.add(getImage("TetrisAssets/Block12.png"));
+    }
+
+    private void initializeNextBlockImages() {
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview1.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
     }
 }
