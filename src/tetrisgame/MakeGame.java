@@ -149,7 +149,7 @@ public class MakeGame extends GameObject {
     }
 
     private void updateNextPiecePreview() {
-        int pieceID = world.getPieceSet().indexOf(world.getPrev_piece());
+        int pieceID = world.getPrev_index();
 
         nextPieceSprite.setImage(nextBlocks.get(pieceID));
     }
@@ -158,9 +158,9 @@ public class MakeGame extends GameObject {
     private void updateWorldSprites() {
         for (int y = 0; y < 20; y++) {
             for (int x = 0; x < 10; x++) {
-                world_sprites.get(y).get(x).setImage(blocks.get(world.getStatic_layer()[y][x]));
+                world_sprites.get(y).get(x).setImage(blocks.get(world.getStatic_layer()[y][x]+1));
                 if (world.getMoving_layer()[y][x] != 0) {
-                    world_sprites.get(y).get(x).setImage(blocks.get(world.getMoving_layer()[y][x]));
+                    world_sprites.get(y).get(x).setImage(blocks.get(world.getMoving_layer()[y][x]+1));
                 }
             }
         }
@@ -168,6 +168,7 @@ public class MakeGame extends GameObject {
 
     //Initialize the block images.
     private void initializeBlockImages() {
+        blocks.add(getImage("TetrisAssets/PrevBlock.png"));
         blocks.add(getImage("TetrisAssets/BGBlock.png"));
         blocks.add(getImage("TetrisAssets/Block1.png"));
         blocks.add(getImage("TetrisAssets/Block2.png"));

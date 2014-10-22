@@ -33,10 +33,10 @@ public class GameWorld {
 
     private PieceSet piece_set;//ArrayList of Pieces
 
+    private int curr_index;	
     private Piece curr_piece;//Holds current piece
-    private Piece prev_piece;//Holds previous piece
-
-    private int last_piece;
+    
+    private int prev_index;
 
     //QUEUE 3 stored pieces
     Random rand = new Random();//For spawning new piece
@@ -47,35 +47,39 @@ public class GameWorld {
         moving_layer = new int[ROW][COL];
         static_layer = new int[ROW][COL];
         piece_set = new PieceSet();
-
-        curr_piece = piece_set.get(rand.nextInt(piece_set.size()));
-        prev_piece = piece_set.get(rand.nextInt(piece_set.size()));
+        
+        curr_index = rand.nextInt(piece_set.size());
+        curr_piece = new Piece(piece_set.get(curr_index).getStructure());
+        prev_index = rand.nextInt(piece_set.size());
 
         getCurr_piece().setPosition(DEFAULT_X, DEFAULT_Y);
         updateMovingLayer();
     }
 
     private void spawnNewPiece() {
-        //Revise to spawn in prev_piece
-        curr_piece = getPrev_piece();
+        curr_index = prev_index;
+        curr_piece = new Piece(piece_set.get(curr_index).getStructure());
         int temp = rand.nextInt(piece_set.size()); // Get Next piece
-
-        //Loop to get a different piece compared to the last piece
-        while (temp == last_piece) {
-            temp = rand.nextInt(piece_set.size());
-        }
+        
 
         //Checks if the next piece could be the same as the spawned piece.
-        if (rand.nextInt(2) == 0) {
-            last_piece = -2;
-        } else {
-            last_piece = temp;
+        if(temp == prev_index){
+            if (rand.nextInt(2) == 0) {
+                while (temp == prev_index) {
+                    temp = rand.nextInt(piece_set.size());
+                }
+            } 
         }
-
-        prev_piece = piece_set.get(temp);
+        
+        prev_index = temp;
 
         getCurr_piece().setPosition(DEFAULT_X, DEFAULT_Y);
         updateMovingLayer();
+        
+        while(collision()){
+            getCurr_piece().setY(getCurr_piece().getY()-1);
+            updateMovingLayer();
+        }
     }
 
     public void movePiece(int dir) {
@@ -186,17 +190,46 @@ public class GameWorld {
         return lines_completed;
     }
 
-    public void updateMovingLayer() {
-        clearLayer(MOVING);
-        for (int y = 0; y < getCurr_piece().getStructure()[0].length; y++) {
-            for (int x = 0; x < getCurr_piece().getStructure().length; x++) {
-                if (getCurr_piece().getY() + y >= 0 && getCurr_piece().getX() + x >= 0 && getCurr_piece().getY() + y < ROW && getCurr_piece().getX() + x < COL) {
-                    if (getCurr_piece().getStructure(x, y)) {
-                        moving_layer[getCurr_piece().getY() + y][getCurr_piece().getX() + x] = piece_set.indexOf(getCurr_piece()) + 1;
+    private void printPieceToMovingLayer(Piece piece, int X, int Y, int pieceNum){
+        for(int y = 0; y < piece.getStructure()[0].length; y++){
+            for(int x = 0; x < piece.getStructure().length; x++){
+                if(Y + y >= 0 && X + x >= 0 && Y + y < ROW && X + x < COL){
+                    if(getCurr_piece().getStructure(x, y)){
+                    moving_layer[Y + y][X + x] = pieceNum;
                     }
                 }
             }
         }
+    }
+    
+    public void insertPiecePreview(){
+        int tempX = getCurr_piece().getX();
+        int tempY = getCurr_piece().getY();
+        boolean stop = false;
+        while(!stop && tempY + getCurr_piece().getStructure()[0].length - 1 < 20){
+            clearLayer(MOVING);
+                printPieceToMovingLayer(curr_piece, tempX, tempY, -1);
+
+                if(!collision()){
+                   tempY++;
+                }
+                else{
+                   tempY--;
+                   clearLayer(MOVING);
+                   printPieceToMovingLayer(curr_piece, tempX, tempY, -1);
+                   stop = true;
+                }
+            //}
+        }
+    }
+    
+    public void updateMovingLayer() {
+        clearLayer(MOVING);
+        
+        insertPiecePreview();
+        
+        printPieceToMovingLayer(curr_piece, curr_piece.getX(), curr_piece.getY(), curr_index + 1);
+          
     }
 
     public void clearLayer(int l) {//MOVING or STATIC
@@ -250,8 +283,8 @@ public class GameWorld {
         return curr_piece;
     }
 
-    public Piece getPrev_piece() {
-        return prev_piece;
+    public int getPrev_index() {
+        return prev_index;
     }
 
     public PieceSet getPieceSet() {
