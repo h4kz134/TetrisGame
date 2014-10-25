@@ -6,7 +6,7 @@ import java.util.Random;
  *
  * @author rhett
  */
-public class GameWorld {
+public final class GameWorld {
     /*CONSTANTS*/
 
     /*For printing and clearing*/
@@ -33,10 +33,12 @@ public class GameWorld {
 
     private PieceSet piece_set;//ArrayList of Pieces
 
-    private int curr_index;	
+    private int curr_index;
     private Piece curr_piece;//Holds current piece
-    
+
     private int prev_index;
+
+    private int game_score; //Keeps track of the lines completed
 
     //QUEUE 3 stored pieces
     Random rand = new Random();//For spawning new piece
@@ -47,10 +49,12 @@ public class GameWorld {
         moving_layer = new int[ROW][COL];
         static_layer = new int[ROW][COL];
         piece_set = new PieceSet();
-        
+
         curr_index = rand.nextInt(piece_set.size());
         curr_piece = new Piece(piece_set.get(curr_index).getStructure());
         prev_index = rand.nextInt(piece_set.size());
+
+        resetGameScore();
 
         getCurr_piece().setPosition(DEFAULT_X, DEFAULT_Y);
         updateMovingLayer();
@@ -60,24 +64,23 @@ public class GameWorld {
         curr_index = prev_index;
         curr_piece = new Piece(piece_set.get(curr_index).getStructure());
         int temp = rand.nextInt(piece_set.size()); // Get Next piece
-        
 
         //Checks if the next piece could be the same as the spawned piece.
-        if(temp == prev_index){
+        if (temp == prev_index) {
             if (rand.nextInt(3) == 0) {
                 while (temp == prev_index) {
                     temp = rand.nextInt(piece_set.size());
                 }
-            } 
+            }
         }
-        
+
         prev_index = temp;
 
         getCurr_piece().setPosition(DEFAULT_X, DEFAULT_Y);
         updateMovingLayer();
-        
-        while(collision()){
-            getCurr_piece().setY(getCurr_piece().getY()-1);
+
+        while (collision()) {
+            getCurr_piece().setY(getCurr_piece().getY() - 1);
             updateMovingLayer();
         }
     }
@@ -92,6 +95,7 @@ public class GameWorld {
                     getCurr_piece().setY(getCurr_piece().getY() - 1);
                     updateMovingLayer();
                     moveToStatic();
+                    game_score += checkCompletedLines();
                     spawnNewPiece();
                 }
                 break;
@@ -125,6 +129,7 @@ public class GameWorld {
         getCurr_piece().setY(getCurr_piece().getY() - 1);
         updateMovingLayer();
         moveToStatic();
+        game_score = checkCompletedLines();
         spawnNewPiece();
     }
 
@@ -190,46 +195,45 @@ public class GameWorld {
         return lines_completed;
     }
 
-    private void printPieceToMovingLayer(Piece piece, int X, int Y, int pieceNum){
-        for(int y = 0; y < piece.getStructure()[0].length; y++){
-            for(int x = 0; x < piece.getStructure().length; x++){
-                if(Y + y >= 0 && X + x >= 0 && Y + y < ROW && X + x < COL){
-                    if(getCurr_piece().getStructure(x, y)){
-                    moving_layer[Y + y][X + x] = pieceNum;
+    private void printPieceToMovingLayer(Piece piece, int X, int Y, int pieceNum) {
+        for (int y = 0; y < piece.getStructure()[0].length; y++) {
+            for (int x = 0; x < piece.getStructure().length; x++) {
+                if (Y + y >= 0 && X + x >= 0 && Y + y < ROW && X + x < COL) {
+                    if (getCurr_piece().getStructure(x, y)) {
+                        moving_layer[Y + y][X + x] = pieceNum;
                     }
                 }
             }
         }
     }
-    
-    public void insertPiecePreview(){
+
+    public void insertPiecePreview() {
         int tempX = getCurr_piece().getX();
         int tempY = getCurr_piece().getY();
         boolean stop = false;
-        while(!stop && tempY + getCurr_piece().getStructure()[0].length - 1 < 20){
+        while (!stop && tempY + getCurr_piece().getStructure()[0].length - 1 < 20) {
             clearLayer(MOVING);
-                printPieceToMovingLayer(curr_piece, tempX, tempY, -1);
+            printPieceToMovingLayer(curr_piece, tempX, tempY, -1);
 
-                if(!collision()){
-                   tempY++;
-                }
-                else{
-                   tempY--;
-                   clearLayer(MOVING);
-                   printPieceToMovingLayer(curr_piece, tempX, tempY, -1);
-                   stop = true;
-                }
+            if (!collision()) {
+                tempY++;
+            } else {
+                tempY--;
+                clearLayer(MOVING);
+                printPieceToMovingLayer(curr_piece, tempX, tempY, -1);
+                stop = true;
+            }
             //}
         }
     }
-    
+
     public void updateMovingLayer() {
         clearLayer(MOVING);
-        
+
         insertPiecePreview();
-        
+
         printPieceToMovingLayer(curr_piece, curr_piece.getX(), curr_piece.getY(), curr_index + 1);
-          
+
     }
 
     public void clearLayer(int l) {//MOVING or STATIC
@@ -271,6 +275,10 @@ public class GameWorld {
         }
     }
 
+    public final void resetGameScore() {
+        game_score = 0;
+    }
+
     public int[][] getMoving_layer() {
         return moving_layer;
     }
@@ -279,7 +287,7 @@ public class GameWorld {
         return static_layer;
     }
 
-    public Piece getCurr_piece() {
+    public final Piece getCurr_piece() {
         return curr_piece;
     }
 
@@ -289,5 +297,9 @@ public class GameWorld {
 
     public PieceSet getPieceSet() {
         return piece_set;
+    }
+
+    public int getGameScore() {
+        return game_score;
     }
 }

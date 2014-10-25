@@ -78,7 +78,6 @@ public class MakeGame extends GameObject {
 
             if (timer == 0) {
                 world.movePiece(GameWorld.DOWN);
-                score += world.checkCompletedLines();
                 updateNextPiecePreview();
             }
 
@@ -127,7 +126,6 @@ public class MakeGame extends GameObject {
                 keyTimer = (keyTimer + 1) % Math.min(KEY_DELAY, DELAY / 2);
             } else if (keyPressed(KeyEvent.VK_SPACE)) {
                 world.quickDrop();
-                score += world.checkCompletedLines();
             } else if (keyPressed(KeyEvent.VK_ESCAPE)) {
                 gameStatus = 1;
             } else {
