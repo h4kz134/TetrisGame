@@ -64,7 +64,7 @@ public class GameWorld {
 
         //Checks if the next piece could be the same as the spawned piece.
         if(temp == prev_index){
-            if (rand.nextInt(2) == 0) {
+            if (rand.nextInt(3) == 0) {
                 while (temp == prev_index) {
                     temp = rand.nextInt(piece_set.size());
                 }

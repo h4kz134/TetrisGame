@@ -34,6 +34,10 @@ public class MakeGame extends GameObject {
     private int timer;
     private int score;
 
+    //VARIABLE STORAGE
+    private int nextPieceID;
+    private int gameStatus; //0 = in game. 1 = paused, 2 = game over
+
     int[][] updateGrid;
 
     public MakeGame(GameEngine ge) {
@@ -62,22 +66,25 @@ public class MakeGame extends GameObject {
     private void resetGame() {
         timer = 1;
         score = 0;
+        gameStatus = 0;
         updateNextPiecePreview();
     }
 
     @Override
     public void update(long l) {
-        timer = (timer + 1) % DELAY;
         listenInput();
+        if (gameStatus == 0) {
+            timer = (timer + 1) % DELAY;
 
-        if (timer == 0) {
-            world.movePiece(GameWorld.DOWN);
-            score += world.checkCompletedLines();
+            if (timer == 0) {
+                world.movePiece(GameWorld.DOWN);
+                score += world.checkCompletedLines();
+                updateNextPiecePreview();
+            }
+
+            updateWorldSprites();//Refresh
             updateNextPiecePreview();
         }
-
-        updateWorldSprites();//Refresh
-        updateNextPiecePreview();
     }
 
     @Override
@@ -100,28 +107,36 @@ public class MakeGame extends GameObject {
 
     //Input Listener
     private void listenInput() {
-        if ((keyPressed(KeyEvent.VK_W) || keyPressed(KeyEvent.VK_UP))) {
-            world.rotatePiece();
-        } else if ((keyDown(KeyEvent.VK_A) || keyDown(KeyEvent.VK_LEFT))) {
-            if (keyTimer == 0) {
-                world.movePiece(GameWorld.LEFT);
+        if (gameStatus == 0) {
+            if ((keyPressed(KeyEvent.VK_W) || keyPressed(KeyEvent.VK_UP))) {
+                world.rotatePiece();
+            } else if ((keyDown(KeyEvent.VK_A) || keyDown(KeyEvent.VK_LEFT))) {
+                if (keyTimer == 0) {
+                    world.movePiece(GameWorld.LEFT);
+                }
+                keyTimer = (keyTimer + 1) % KEY_DELAY;
+            } else if ((keyDown(KeyEvent.VK_D) || keyDown(KeyEvent.VK_RIGHT))) {
+                if (keyTimer == 0) {
+                    world.movePiece(GameWorld.RIGHT);
+                }
+                keyTimer = (keyTimer + 1) % KEY_DELAY;
+            } else if ((keyDown(KeyEvent.VK_S) || keyDown(KeyEvent.VK_DOWN))) {
+                if (keyTimer == 0) {
+                    world.movePiece(GameWorld.DOWN);
+                }
+                keyTimer = (keyTimer + 1) % Math.min(KEY_DELAY, DELAY / 2);
+            } else if (keyPressed(KeyEvent.VK_SPACE)) {
+                world.quickDrop();
+                score += world.checkCompletedLines();
+            } else if (keyPressed(KeyEvent.VK_ESCAPE)) {
+                gameStatus = 1;
+            } else {
+                keyTimer = 0;
             }
-            keyTimer = (keyTimer + 1) % KEY_DELAY;
-        } else if ((keyDown(KeyEvent.VK_D) || keyDown(KeyEvent.VK_RIGHT))) {
-            if (keyTimer == 0) {
-                world.movePiece(GameWorld.RIGHT);
+        } else if (gameStatus == 1) {
+            if (keyPressed(KeyEvent.VK_ESCAPE)) {
+                gameStatus = 0;
             }
-            keyTimer = (keyTimer + 1) % KEY_DELAY;
-        } else if ((keyDown(KeyEvent.VK_S) || keyDown(KeyEvent.VK_DOWN))) {
-            if (keyTimer == 0) {
-                world.movePiece(GameWorld.DOWN);
-            }
-            keyTimer = (keyTimer + 1) % Math.min(KEY_DELAY, DELAY / 2);
-        } else if (keyPressed(KeyEvent.VK_SPACE)) {
-            world.quickDrop();
-            score += world.checkCompletedLines();
-        } else {
-            keyTimer = 0;
         }
     }
 
@@ -149,18 +164,20 @@ public class MakeGame extends GameObject {
     }
 
     private void updateNextPiecePreview() {
-        int pieceID = world.getPrev_index();
-
-        nextPieceSprite.setImage(nextBlocks.get(pieceID));
+        int temp;
+        if ((temp = world.getPrev_index()) != nextPieceID) {
+            nextPieceID = temp;
+            nextPieceSprite.setImage(nextBlocks.get(nextPieceID));
+        }
     }
 
     //Update world sprites
     private void updateWorldSprites() {
         for (int y = 0; y < 20; y++) {
             for (int x = 0; x < 10; x++) {
-                world_sprites.get(y).get(x).setImage(blocks.get(world.getStatic_layer()[y][x]+1));
+                world_sprites.get(y).get(x).setImage(blocks.get(world.getStatic_layer()[y][x] + 1));
                 if (world.getMoving_layer()[y][x] != 0) {
-                    world_sprites.get(y).get(x).setImage(blocks.get(world.getMoving_layer()[y][x]+1));
+                    world_sprites.get(y).get(x).setImage(blocks.get(world.getMoving_layer()[y][x] + 1));
                 }
             }
         }
@@ -186,12 +203,12 @@ public class MakeGame extends GameObject {
 
     private void initializeNextBlockImages() {
         nextBlocks.add(getImage("TetrisAssets/BlockPreview1.png"));
-        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
-        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
-        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
-        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
-        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
-        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview2.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview3.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview4.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview5.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview6.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview7.png"));
         nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
         nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
         nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
