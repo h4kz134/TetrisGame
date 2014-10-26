@@ -18,3 +18,5 @@ nbproject/genfiles.properties
 *.class
 nbproject/genfiles.properties
 nbproject/private/private.xml
+/build/
+nbproject/private/private.xml
