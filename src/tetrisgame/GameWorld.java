@@ -1,5 +1,6 @@
 package tetrisgame;
 
+import java.util.LinkedList;
 import java.util.Random;
 
 /**
@@ -21,11 +22,11 @@ public final class GameWorld {
 
     /*World size*/
     public static final int COL = 10;//x
-    public static final int ROW = 20;//y
+    public static final int ROW = 22;//y
 
     /*Default starting position*/
     private static final int DEFAULT_X = 4;
-    private static final int DEFAULT_Y = -2;
+    private static final int DEFAULT_Y = 0;
 
     /*ATTRIBUTES*/
     private int[][] moving_layer;//2d array layer for moving piece
@@ -39,6 +40,9 @@ public final class GameWorld {
     private int prev_index;
 
     private int game_score; //Keeps track of the lines completed
+    
+    private LinkedList<Integer> storedIndex;
+    private LinkedList<Piece> storedPieces;
 
     //QUEUE 3 stored pieces
     Random rand = new Random();//For spawning new piece
@@ -49,7 +53,9 @@ public final class GameWorld {
         moving_layer = new int[ROW][COL];
         static_layer = new int[ROW][COL];
         piece_set = new PieceSet();
-
+        storedPieces = new LinkedList();
+        storedIndex = new LinkedList();
+        
         curr_index = rand.nextInt(piece_set.size());
         curr_piece = new Piece(piece_set.get(curr_index).getStructure());
         prev_index = rand.nextInt(piece_set.size());
@@ -85,6 +91,39 @@ public final class GameWorld {
         }
     }
 
+    public boolean checkGameover(){
+        for(int y = 0; y < 2; y++){
+            for(int x = 0; x < COL; x++){
+                if(static_layer[y][x] > 0)
+                    return true;
+            }
+        }
+        return false;
+    }
+    
+    //For Extreme
+    public void pushPiece(){
+        storedPieces.add(curr_piece);
+        storedIndex.add(curr_index);
+        if(storedPieces.size() > 3){
+            curr_piece = storedPieces.poll();
+            curr_index = storedIndex.poll();
+            curr_piece.setPosition(DEFAULT_X, DEFAULT_Y);
+        }
+        else{
+            spawnNewPiece();
+        }
+    }
+    
+    //For Extreme
+    public void pullPiece(){
+        storedPieces.add(curr_piece);
+        storedIndex.add(curr_index);
+        curr_piece = storedPieces.poll();
+        curr_index = storedIndex.poll();
+        curr_piece.setPosition(DEFAULT_X, DEFAULT_Y);
+    }
+    
     public void movePiece(int dir) {
         switch (dir) {
             case DOWN:
@@ -211,7 +250,7 @@ public final class GameWorld {
         int tempX = getCurr_piece().getX();
         int tempY = getCurr_piece().getY();
         boolean stop = false;
-        while (!stop && tempY + getCurr_piece().getStructure()[0].length - 1 < 20) {
+        while (!stop && tempY + getCurr_piece().getStructure()[0].length - 1 < ROW) {
             clearLayer(MOVING);
             printPieceToMovingLayer(curr_piece, tempX, tempY, -1);
 
@@ -223,7 +262,6 @@ public final class GameWorld {
                 printPieceToMovingLayer(curr_piece, tempX, tempY, -1);
                 stop = true;
             }
-            //}
         }
     }
 

@@ -52,6 +52,16 @@ public class MakeGame extends GameObject {
         nextBlocks = new ArrayList();
 
         world = new GameWorld();
+        
+        //ADD IF EXTREME MODE LATER
+        world.getPieceSet().addPiece(new boolean[][]{
+            {true, true, true},
+            {true, true, true}
+        });
+        world.getPieceSet().addPiece(new boolean[][]{
+            {true, true, true, false},
+            {true, false, true, true}
+        });
 
         initializeBorder();
         initializeBlockImages();
@@ -126,6 +136,10 @@ public class MakeGame extends GameObject {
                 keyTimer = (keyTimer + 1) % Math.min(KEY_DELAY, DELAY / 2);
             } else if (keyPressed(KeyEvent.VK_SPACE)) {
                 world.quickDrop();
+            } else if (keyPressed(KeyEvent.VK_SHIFT)) {//DISABLE IN CLASSIC
+                world.pushPiece();
+            } else if (keyPressed(KeyEvent.VK_CONTROL)) {//DISABLE IN CLASSIC
+                world.pullPiece();
             } else if (keyPressed(KeyEvent.VK_ESCAPE)) {
                 gameStatus = 1;
             } else {
@@ -151,10 +165,10 @@ public class MakeGame extends GameObject {
 
     //Initialize the background
     private void initializeBG() {
-        for (int y = 0; y < 20; y++) {
+        for (int y = 0; y < GameWorld.ROW; y++) {
             world_sprites.add(new ArrayList());
 
-            for (int x = 0; x < 10; x++) {
+            for (int x = 0; x < GameWorld.COL; x++) {
                 world_sprites.get(y).add(
                         new Sprite(blocks.get(0), (x + 1) * BLOCKSIZE, (y + 1) * BLOCKSIZE));
             }
@@ -171,11 +185,11 @@ public class MakeGame extends GameObject {
 
     //Update world sprites
     private void updateWorldSprites() {
-        for (int y = 0; y < 20; y++) {
-            for (int x = 0; x < 10; x++) {
-                world_sprites.get(y).get(x).setImage(blocks.get(world.getStatic_layer()[y][x] + 1));
+        for (int y = 2; y < GameWorld.ROW; y++) {
+            for (int x = 0; x < GameWorld.COL; x++) {
+                world_sprites.get(y-2).get(x).setImage(blocks.get(world.getStatic_layer()[y][x] + 1));
                 if (world.getMoving_layer()[y][x] != 0) {
-                    world_sprites.get(y).get(x).setImage(blocks.get(world.getMoving_layer()[y][x] + 1));
+                    world_sprites.get(y-2).get(x).setImage(blocks.get(world.getMoving_layer()[y][x] + 1));
                 }
             }
         }
