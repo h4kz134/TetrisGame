@@ -340,4 +340,9 @@ public final class GameWorld {
     public int getGameScore() {
         return game_score;
     }
+    
+    public LinkedList<Integer> getStoredIndex() {
+        return storedIndex;
+    }
+    
 }

@@ -3,10 +3,12 @@ package tetrisgame;
 import com.golden.gamedev.GameEngine;
 import com.golden.gamedev.GameObject;
 import com.golden.gamedev.object.Sprite;
+import com.golden.gamedev.util.ImageUtil;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class MakeGame extends GameObject {
 
@@ -20,6 +22,9 @@ public class MakeGame extends GameObject {
     private ArrayList<Sprite> gameBorder;
     private ArrayList<ArrayList<Sprite>> world_sprites;
     private Sprite nextPieceSprite;
+    private Sprite storedPiece1;
+    private Sprite storedPiece2;
+    private Sprite storedPiece3;
 
     //IMAGE ASSETS
     private ArrayList<BufferedImage> blocks;
@@ -33,6 +38,7 @@ public class MakeGame extends GameObject {
     private int keyTimer;
     private int timer;
     private int score;
+    private int[] nextPieceIndex = new int[3];
 
     //VARIABLE STORAGE
     private int nextPieceID;
@@ -52,7 +58,7 @@ public class MakeGame extends GameObject {
         nextBlocks = new ArrayList();
 
         world = new GameWorld();
-        
+
         //ADD IF EXTREME MODE LATER
         world.getPieceSet().addPiece(new boolean[][]{
             {true, true, true},
@@ -70,6 +76,10 @@ public class MakeGame extends GameObject {
 
         updateWorldSprites();
         nextPieceSprite = new Sprite(416, 32);
+        storedPiece1 = new Sprite(416, 176);
+        storedPiece2 = new Sprite(416, 256);
+        storedPiece3 = new Sprite(416, 336);
+
         resetGame();
     }
 
@@ -93,12 +103,17 @@ public class MakeGame extends GameObject {
 
             updateWorldSprites();//Refresh
             updateNextPiecePreview();
+            updateStoredPieces();
         }
     }
 
     @Override
     public void render(Graphics2D gd) {
         nextPieceSprite.render(gd);
+
+        storedPiece1.render(gd);
+        storedPiece2.render(gd);
+        storedPiece3.render(gd);
 
         //Render the game border
         for (Sprite s : gameBorder) {
@@ -183,13 +198,54 @@ public class MakeGame extends GameObject {
         }
     }
 
+    private void updateStoredPieces() {
+        LinkedList<Integer> storedIndex = world.getStoredIndex();
+        int size = storedIndex.size();
+
+        if (size >= 1) {
+            if (nextPieceIndex[0] != storedIndex.get(0)) {
+                nextPieceIndex[0] = storedIndex.get(0);
+                storedPiece1.setImage(ImageUtil.resize(nextBlocks.get(storedIndex.get(0)), 64, 64));
+            }
+        } else {
+            if (nextPieceIndex[0] != 9) {
+                nextPieceIndex[0] = 9;
+                storedPiece1.setImage(ImageUtil.resize(nextBlocks.get(9), 64, 64));
+            }
+        }
+
+        if (size >= 2) {
+            if (nextPieceIndex[1] != storedIndex.get(1)) {
+                nextPieceIndex[1] = storedIndex.get(1);
+                storedPiece2.setImage(ImageUtil.resize(nextBlocks.get(nextPieceIndex[1]), 64, 64));
+            }
+        } else {
+            if (nextPieceIndex[1] != 9) {
+                nextPieceIndex[1] = 9;
+                storedPiece2.setImage(ImageUtil.resize(nextBlocks.get(9), 64, 64));
+            }
+        }
+
+        if (size >= 3) {
+            if (nextPieceIndex[2] != storedIndex.get(2)) {
+                nextPieceIndex[2] = storedIndex.get(2);
+                storedPiece3.setImage(ImageUtil.resize(nextBlocks.get(nextPieceIndex[2]), 64, 64));
+            }
+        } else {
+            if (nextPieceIndex[2] != 9) {
+                nextPieceIndex[2] = 9;
+                storedPiece3.setImage(ImageUtil.resize(nextBlocks.get(9), 64, 64));
+            }
+        }
+    }
+
     //Update world sprites
     private void updateWorldSprites() {
         for (int y = 2; y < GameWorld.ROW; y++) {
             for (int x = 0; x < GameWorld.COL; x++) {
-                world_sprites.get(y-2).get(x).setImage(blocks.get(world.getStatic_layer()[y][x] + 1));
+                world_sprites.get(y - 2).get(x).setImage(blocks.get(world.getStatic_layer()[y][x] + 1));
                 if (world.getMoving_layer()[y][x] != 0) {
-                    world_sprites.get(y-2).get(x).setImage(blocks.get(world.getMoving_layer()[y][x] + 1));
+                    world_sprites.get(y - 2).get(x).setImage(blocks.get(world.getMoving_layer()[y][x] + 1));
                 }
             }
         }
