@@ -40,7 +40,7 @@ public final class GameWorld {
     private int prev_index;
 
     private int game_score; //Keeps track of the lines completed
-    
+
     private LinkedList<Integer> storedIndex;
     private LinkedList<Piece> storedPieces;
 
@@ -48,22 +48,15 @@ public final class GameWorld {
     Random rand = new Random();//For spawning new piece
 
     /*METHODS*/
-    public GameWorld() {
+    public GameWorld(int[][] staticLayer, int[] ratio) {
         //Initialize
         moving_layer = new int[ROW][COL];
         static_layer = new int[ROW][COL];
         piece_set = new PieceSet();
         storedPieces = new LinkedList();
         storedIndex = new LinkedList();
-        
-        curr_index = rand.nextInt(piece_set.size());
-        curr_piece = new Piece(piece_set.get(curr_index).getStructure());
-        prev_index = rand.nextInt(piece_set.size());
 
-        resetGameScore();
-
-        getCurr_piece().setPosition(DEFAULT_X, DEFAULT_Y);
-        updateMovingLayer();
+        resetGameBoard(staticLayer);
     }
 
     private void spawnNewPiece() {
@@ -91,39 +84,39 @@ public final class GameWorld {
         }
     }
 
-    public boolean checkGameover(){
-        for(int y = 0; y < 2; y++){
-            for(int x = 0; x < COL; x++){
-                if(static_layer[y][x] > 0)
+    public boolean checkGameover() {
+        for (int y = 0; y < 2; y++) {
+            for (int x = 0; x < COL; x++) {
+                if (static_layer[y][x] > 0) {
                     return true;
+                }
             }
         }
         return false;
     }
-    
+
     //For Extreme
-    public void pushPiece(){
+    public void pushPiece() {
         storedPieces.add(curr_piece);
         storedIndex.add(curr_index);
-        if(storedPieces.size() > 3){
+        if (storedPieces.size() > 3) {
             curr_piece = storedPieces.poll();
             curr_index = storedIndex.poll();
             curr_piece.setPosition(DEFAULT_X, DEFAULT_Y);
-        }
-        else{
+        } else {
             spawnNewPiece();
         }
     }
-    
+
     //For Extreme
-    public void pullPiece(){
+    public void pullPiece() {
         storedPieces.add(curr_piece);
         storedIndex.add(curr_index);
         curr_piece = storedPieces.poll();
         curr_index = storedIndex.poll();
         curr_piece.setPosition(DEFAULT_X, DEFAULT_Y);
     }
-    
+
     public void movePiece(int dir) {
         switch (dir) {
             case DOWN:
@@ -313,6 +306,27 @@ public final class GameWorld {
         }
     }
 
+    private void resetGameBoard(int[][] staticLayer) {
+        static_layer = staticLayer;
+        curr_index = rand.nextInt(piece_set.size());
+        curr_piece = new Piece(piece_set.get(curr_index).getStructure());
+        prev_index = rand.nextInt(piece_set.size());
+
+        resetGameScore();
+
+        getCurr_piece().setPosition(DEFAULT_X, DEFAULT_Y);
+        updateMovingLayer();
+    }
+
+    public void resetGame(int[][] staticLayer) {
+
+        clearLayer(MOVING);
+        storedIndex.clear();
+        storedPieces.clear();
+
+        resetGameBoard(staticLayer);
+    }
+
     public final void resetGameScore() {
         game_score = 0;
     }
@@ -323,6 +337,10 @@ public final class GameWorld {
 
     public int[][] getStatic_layer() {
         return static_layer;
+    }
+
+    public void setStatic_layer(int[][] handicap) {
+        static_layer = handicap;
     }
 
     public final Piece getCurr_piece() {
@@ -340,9 +358,9 @@ public final class GameWorld {
     public int getGameScore() {
         return game_score;
     }
-    
+
     public LinkedList<Integer> getStoredIndex() {
         return storedIndex;
     }
-    
+
 }

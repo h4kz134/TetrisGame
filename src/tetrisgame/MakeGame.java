@@ -31,6 +31,7 @@ public class MakeGame extends GameObject {
     private ArrayList<BufferedImage> nextBlocks;
 
     //GAME SETTINGS
+    private final GameSettings settings;
     private final int DELAY = 100;
     private final int KEY_DELAY = 12;
 
@@ -46,8 +47,9 @@ public class MakeGame extends GameObject {
 
     int[][] updateGrid;
 
-    public MakeGame(GameEngine ge) {
+    public MakeGame(GameEngine ge, GameSettings settings) {
         super(ge);
+        this.settings = settings;
     }
 
     @Override
@@ -57,7 +59,7 @@ public class MakeGame extends GameObject {
         blocks = new ArrayList();
         nextBlocks = new ArrayList();
 
-        world = new GameWorld();
+        world = new GameWorld(settings.getHandicap(), new int[9]);
 
         //ADD IF EXTREME MODE LATER
         world.getPieceSet().addPiece(new boolean[][]{
@@ -93,7 +95,12 @@ public class MakeGame extends GameObject {
     @Override
     public void update(long l) {
         listenInput();
+
         if (gameStatus == 0) {
+            if (world.checkGameover()) {
+                gameStatus = 2;
+                System.out.println("gameover");
+            }
             timer = (timer + 1) % DELAY;
 
             if (timer == 0) {
@@ -163,6 +170,12 @@ public class MakeGame extends GameObject {
         } else if (gameStatus == 1) {
             if (keyPressed(KeyEvent.VK_ESCAPE)) {
                 gameStatus = 0;
+            }
+        } else if (gameStatus == 2) {
+            if (keyPressed(KeyEvent.VK_ESCAPE)) {
+                gameStatus = 0;
+                resetGame();
+                world.resetGame(settings.getHandicap());
             }
         }
     }

@@ -6,12 +6,18 @@ import com.golden.gamedev.GameObject;
 import java.awt.Dimension;
 
 public class Main extends GameEngine {
+    
+    GameSettings settings;
+    
+    public Main() {
+        settings = new GameSettings();
+    }
 
     @Override
     public GameObject getGame(int i) {
         switch (i) {
             case 0:
-                return new MakeGame(this);
+                return new MakeGame(this, settings);
             case 1:
                 //return new MakeGame(this, settings, highScores);
         }
