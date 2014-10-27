@@ -158,9 +158,9 @@ public class MakeGame extends GameObject {
                 keyTimer = (keyTimer + 1) % Math.min(KEY_DELAY, DELAY / 2);
             } else if (keyPressed(KeyEvent.VK_SPACE)) {
                 world.quickDrop();
-            } else if (keyPressed(KeyEvent.VK_SHIFT)) {//DISABLE IN CLASSIC
+            } else if (keyPressed(KeyEvent.VK_SHIFT) && settings.getGameMode() == 1) {//DISABLE IN CLASSIC
                 world.pushPiece();
-            } else if (keyPressed(KeyEvent.VK_CONTROL)) {//DISABLE IN CLASSIC
+            } else if (keyPressed(KeyEvent.VK_CONTROL) && settings.getGameMode() == 1) {//DISABLE IN CLASSIC
                 world.pullPiece();
             } else if (keyPressed(KeyEvent.VK_ESCAPE)) {
                 gameStatus = 1;

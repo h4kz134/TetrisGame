@@ -8,7 +8,7 @@ public class GameSettings {
     private int speed;
     private boolean blockPreview;
     private int handicap;
-    private int gameMode;
+    private int gameMode; //Game mode 0 = classic, game mode 1 = extreme
     int[][] gameWorld = new int[22][10];
     Random rand = new Random(); //For spawning new piece
 
@@ -16,7 +16,7 @@ public class GameSettings {
         for (int i = 0; i < blockRatio.length; i++) {
             blockRatio[i] = 1;
         }
-
+        gameMode = 1;
         handicap = 1;
     }
 
