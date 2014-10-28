@@ -29,6 +29,11 @@ public class MakeGame extends GameObject {
     private Sprite storedPiece2;
     private Sprite storedPiece3;
 
+    //Buttons
+    private Sprite resumeButton;
+    private Sprite restartButton;
+    private Sprite exitButton;
+
     //IMAGE ASSETS
     private ArrayList<BufferedImage> blocks;
     private ArrayList<BufferedImage> nextBlocks;
@@ -170,10 +175,12 @@ public class MakeGame extends GameObject {
             } else {
                 keyTimer = 0;
             }
+
         } else if (gameStatus == PAUSE) {
             if (keyPressed(KeyEvent.VK_ESCAPE)) {
                 gameStatus = 0;
             }
+
         } else if (gameStatus == GAMEOVER) {
             if (keyPressed(KeyEvent.VK_ESCAPE)) {
                 gameStatus = 0;
@@ -293,8 +300,8 @@ public class MakeGame extends GameObject {
         nextBlocks.add(getImage("TetrisAssets/BlockPreview5.png"));
         nextBlocks.add(getImage("TetrisAssets/BlockPreview6.png"));
         nextBlocks.add(getImage("TetrisAssets/BlockPreview7.png"));
-        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
-        nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview8.png"));
+        nextBlocks.add(getImage("TetrisAssets/BlockPreview9.png"));
         nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
     }
 }

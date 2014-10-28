@@ -15,6 +15,7 @@ public class MainMenu extends GameObject {
     private Sprite classicButton;
     private Sprite extremeButton;
     private Sprite optionsButton;
+    private Sprite exitButton;
     private Sprite ratioButton;
 
     public MainMenu(GameEngine ge, GameSettings settings) {
@@ -24,32 +25,42 @@ public class MainMenu extends GameObject {
 
     @Override
     public void initResources() {
-        menuState = 0;
+        menuState = MAIN_MENU;
     }
 
     @Override
     public void update(long l) {
-        if (click()) {
-            if (this.checkPosMouse(classicButton, true)) {
-                settings.setGameMode(GameSettings.CLASSIC);
-                parent.nextGameID = 1;
-                finish();
-            } else if (checkPosMouse(extremeButton, true)) {
-                settings.setGameMode(GameSettings.EXTREME);
-                parent.nextGameID = 1;
-                finish();
-            } else if(checkPosMouse(optionsButton, true)) {
-                menuState = OPTIONS_MENU;
-            }
-        }
+        checkInput();
     }
 
     @Override
     public void render(Graphics2D gd) {
-
+        if(menuState == MAIN_MENU) {
+            classicButton.render(gd);
+            extremeButton.render(gd);
+            optionsButton.render(gd);
+        } else if(menuState == OPTIONS_MENU) {
+            exitButton.render(gd);
+        }
     }
 
     private void checkInput() {
-
+        if (click()) {
+            if (menuState == MAIN_MENU) {
+                if (this.checkPosMouse(classicButton, true)) {
+                    settings.setGameMode(GameSettings.CLASSIC);
+                    parent.nextGameID = 1;
+                    finish();
+                } else if (checkPosMouse(extremeButton, true)) {
+                    settings.setGameMode(GameSettings.EXTREME);
+                    parent.nextGameID = 1;
+                    finish();
+                } else if (checkPosMouse(optionsButton, true)) {
+                    menuState = OPTIONS_MENU;
+                }
+            } else if(menuState == OPTIONS_MENU) {
+                
+            }
+        }
     }
 }
