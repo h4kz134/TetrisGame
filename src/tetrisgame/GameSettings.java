@@ -4,6 +4,9 @@ import java.util.Random;
 
 public class GameSettings {
 
+    public static final int CLASSIC = 0;
+    public static final int EXTREME = 1;
+
     private int[] blockRatio = new int[9];
     private int speed;
     private boolean blockPreview;
