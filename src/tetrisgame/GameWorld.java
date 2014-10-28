@@ -166,12 +166,22 @@ public final class GameWorld {
     }
 
     public void rotatePiece() {
-        getCurr_piece().rotate();
-        if (collision())//adjust move if collieded
-        {
-            getCurr_piece().rotate();
-        }
+        int tempX = curr_piece.getX();
+        int tempY = curr_piece.getY();
+        curr_piece.rotateClockwise(true);
         updateMovingLayer();
+        while(collision() && curr_piece.getX() + curr_piece.getStructure().length > tempX)
+        {
+            curr_piece.setX(curr_piece.getX()-1);
+            updateMovingLayer();
+        }
+        
+        //return to original position no free space found
+        if(!(curr_piece.getX() + curr_piece.getStructure().length > tempX)){
+            curr_piece.rotateClockwise(false);
+            curr_piece.setPosition(tempX, tempY);
+            updateMovingLayer();
+        }
     }
 
     private boolean collision() {

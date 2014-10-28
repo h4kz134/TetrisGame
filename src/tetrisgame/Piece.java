@@ -12,27 +12,30 @@ public class Piece {
         this.structure = structure;
     }
 
-    public void rotate() {
+    public void rotateClockwise(boolean b){
         //Rotate matrix by tranposing and fliping
         boolean[][] temp = new boolean[structure[0].length][structure.length];
-
+        
         //Transpose
-        for (int y = 0; y < structure.length; y++) {
-            for (int x = 0; x < structure[y].length; x++) {
+        for(int y = 0; y < structure.length; y++){
+            for(int x = 0; x < structure[y].length; x++){
                 temp[x][y] = structure[y][x];
             }
         }
-
+        
         //Calculate Offset
-        setX(getX() + (int) ((temp[0].length - structure[0].length) / 2.0));
-        setY(getY() + (int) ((temp.length - structure.length) / 2.0));
-
+        setX(getX() + (int)((temp[0].length - structure[0].length)/2.0));
+        setY(getY() + (int)((temp.length - structure.length)/2.0));
+        
         structure = new boolean[temp.length][temp[0].length];
-
+        
         //Flip matrix
-        for (int y = 0; y < temp.length; y++) {
-            for (int x = 0; x < temp[y].length; x++) {
-                structure[y][x] = temp[y][temp[y].length - x - 1];
+        for(int y = 0; y < temp.length; y++){
+            for(int x = 0; x < temp[y].length; x++){
+                if(b)
+                    structure[y][x] = temp[y][temp[y].length - x - 1];
+                else
+                    structure[y][x] = temp[temp.length - y - 1][x];
             }
         }
     }
