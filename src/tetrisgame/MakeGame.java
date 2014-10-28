@@ -14,6 +14,9 @@ public class MakeGame extends GameObject {
 
     //CONSTANTS
     private final int BLOCKSIZE = 32;
+    private final int INGAME = 0;
+    private final int PAUSE = 1;
+    private final int GAMEOVER = 2;
 
     //GAME WORLD
     GameWorld world;
@@ -96,9 +99,9 @@ public class MakeGame extends GameObject {
     public void update(long l) {
         listenInput();
 
-        if (gameStatus == 0) {
+        if (gameStatus == INGAME) {
             if (world.checkGameover()) {
-                gameStatus = 2;
+                gameStatus = GAMEOVER;
                 System.out.println("gameover");
             }
             timer = (timer + 1) % DELAY;
@@ -138,7 +141,7 @@ public class MakeGame extends GameObject {
 
     //Input Listener
     private void listenInput() {
-        if (gameStatus == 0) {
+        if (gameStatus == INGAME) {
             if ((keyPressed(KeyEvent.VK_W) || keyPressed(KeyEvent.VK_UP))) {
                 world.rotatePiece();
             } else if ((keyDown(KeyEvent.VK_A) || keyDown(KeyEvent.VK_LEFT))) {
@@ -167,11 +170,11 @@ public class MakeGame extends GameObject {
             } else {
                 keyTimer = 0;
             }
-        } else if (gameStatus == 1) {
+        } else if (gameStatus == PAUSE) {
             if (keyPressed(KeyEvent.VK_ESCAPE)) {
                 gameStatus = 0;
             }
-        } else if (gameStatus == 2) {
+        } else if (gameStatus == GAMEOVER) {
             if (keyPressed(KeyEvent.VK_ESCAPE)) {
                 gameStatus = 0;
                 resetGame();
