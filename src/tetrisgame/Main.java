@@ -17,9 +17,9 @@ public class Main extends GameEngine {
     public GameObject getGame(int i) {
         switch (i) {
             case 0:
-                return new MakeGame(this, settings);
+                return new MainMenu(this, settings);
             case 1:
-                //return new MakeGame(this, settings, highScores);
+                return new MakeGame(this, settings);
         }
         return null;
         

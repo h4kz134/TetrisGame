@@ -3,7 +3,9 @@ package tetrisgame;
 import com.golden.gamedev.GameEngine;
 import com.golden.gamedev.GameObject;
 import com.golden.gamedev.object.Sprite;
+import com.golden.gamedev.object.background.ImageBackground;
 import com.golden.gamedev.util.ImageUtil;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -34,9 +36,14 @@ public class MakeGame extends GameObject {
     private Sprite restartButton;
     private Sprite exitButton;
 
+    private Sprite menuSprite;
+    private ImageBackground background;
+
     //IMAGE ASSETS
     private ArrayList<BufferedImage> blocks;
     private ArrayList<BufferedImage> nextBlocks;
+    private BufferedImage pauseImage;
+    private BufferedImage gameOverImage;
 
     //GAME SETTINGS
     private final GameSettings settings;
@@ -79,6 +86,18 @@ public class MakeGame extends GameObject {
             {true, false, true, true}
         });
 
+        switch (settings.getGameMode()) {
+            case GameSettings.CLASSIC:
+                background = new ImageBackground(getImage("TetrisAssets/classicBackground.jpg"));
+                break;
+            case GameSettings.EXTREME:
+                background = new ImageBackground(getImage("TetrisAssets/extremeBackground.png"));
+                break;
+        }
+        
+        pauseImage = getImage("TetrisAssets/pauseMenu.jpg");
+        gameOverImage = getImage("TetrisAssets/gameOverMenu.jpg");
+
         initializeBorder();
         initializeBlockImages();
         initializeNextBlockImages();
@@ -89,6 +108,8 @@ public class MakeGame extends GameObject {
         storedPiece1 = new Sprite(416, 176);
         storedPiece2 = new Sprite(416, 256);
         storedPiece3 = new Sprite(416, 336);
+
+        menuSprite = new Sprite(0, 0);
 
         resetGame();
     }
@@ -107,6 +128,7 @@ public class MakeGame extends GameObject {
         if (gameStatus == INGAME) {
             if (world.checkGameover()) {
                 gameStatus = GAMEOVER;
+                menuSprite.setImage(gameOverImage);
                 System.out.println("gameover");
             }
             timer = (timer + 1) % DELAY;
@@ -124,6 +146,9 @@ public class MakeGame extends GameObject {
 
     @Override
     public void render(Graphics2D gd) {
+        gd.setColor(Color.black);
+        gd.fillRect(0, 0, getWidth(), getHeight());
+        background.render(gd);
         nextPieceSprite.render(gd);
 
         storedPiece1.render(gd);
@@ -140,6 +165,10 @@ public class MakeGame extends GameObject {
             for (Sprite s : a) {
                 s.render(gd);
             }
+        }
+        
+        if(gameStatus != INGAME) {
+            menuSprite.render(gd);
         }
 
     }
@@ -171,19 +200,22 @@ public class MakeGame extends GameObject {
             } else if (keyPressed(KeyEvent.VK_CONTROL) && settings.getGameMode() == 1) {//DISABLE IN CLASSIC
                 world.pullPiece();
             } else if (keyPressed(KeyEvent.VK_ESCAPE)) {
-                gameStatus = 1;
+                menuSprite.setActive(true);
+                menuSprite.setImage(pauseImage);
+                gameStatus = PAUSE;
             } else {
                 keyTimer = 0;
             }
 
         } else if (gameStatus == PAUSE) {
             if (keyPressed(KeyEvent.VK_ESCAPE)) {
-                gameStatus = 0;
+                menuSprite.setActive(false);
+                gameStatus = INGAME;
             }
 
         } else if (gameStatus == GAMEOVER) {
             if (keyPressed(KeyEvent.VK_ESCAPE)) {
-                gameStatus = 0;
+                gameStatus = INGAME;
                 resetGame();
                 world.resetGame(settings.getHandicap());
             }
