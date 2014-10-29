@@ -161,7 +161,7 @@ public final class GameWorld {
         getCurr_piece().setY(getCurr_piece().getY() - 1);
         updateMovingLayer();
         moveToStatic();
-        game_score = checkCompletedLines();
+        game_score += checkCompletedLines();
         spawnNewPiece();
     }
 
@@ -321,6 +321,7 @@ public final class GameWorld {
         curr_index = rand.nextInt(piece_set.size());
         curr_piece = new Piece(piece_set.get(curr_index).getStructure());
         prev_index = rand.nextInt(piece_set.size());
+        game_score = 0;
 
         resetGameScore();
 

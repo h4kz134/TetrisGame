@@ -7,7 +7,13 @@ public class GameSettings {
     public static final int CLASSIC = 0;
     public static final int EXTREME = 1;
 
+    public static final int EASY = 100;
+    public static final int MEDIUM = 50;
+    public static final int HARD = 25;
+
     private int[] blockRatio = new int[9];
+    private boolean toggleStore;
+    private boolean toggleHandicap;
     private int speed;
     private boolean blockPreview;
     private int handicap;
@@ -54,8 +60,24 @@ public class GameSettings {
         this.speed = speed;
     }
 
+    public boolean isToggleStore() {
+        return toggleStore;
+    }
+
+    public void setToggleStore(boolean toggleStore) {
+        this.toggleStore = toggleStore;
+    }
+
     public boolean isBlockPreview() {
         return blockPreview;
+    }
+
+    public boolean isToggleHandicap() {
+        return toggleHandicap;
+    }
+
+    public void setToggleHandicap(boolean toggleHandicap) {
+        this.toggleHandicap = toggleHandicap;
     }
 
     public void setBlockPreview(boolean blockPreview) {
@@ -63,22 +85,29 @@ public class GameSettings {
     }
 
     public int[][] getHandicap() {
-        switch (handicap) {
-            case 1:
-                for (int i = 21; i > 19; i--) {
-                    setRow(gameWorld, i, rand);
-                }
-                break;
-            case 2:
-                for (int i = 21; i > 17; i--) {
-                    setRow(gameWorld, i, rand);
-                }
-                break;
-            case 3:
-                for (int i = 21; i > 15; i--) {
-                    setRow(gameWorld, i, rand);
-                }
-                break;
+        for (int i = 0; i < 20; i++) {
+            for (int j = 0; j < 10; j++) {
+                gameWorld[i][j] = 0;
+            }
+        }
+        if (toggleHandicap) {
+            switch (handicap) {
+                case EASY:
+                    for (int i = 21; i > 19; i--) {
+                        setRow(gameWorld, i, rand);
+                    }
+                    break;
+                case MEDIUM:
+                    for (int i = 21; i > 17; i--) {
+                        setRow(gameWorld, i, rand);
+                    }
+                    break;
+                case HARD:
+                    for (int i = 21; i > 15; i--) {
+                        setRow(gameWorld, i, rand);
+                    }
+                    break;
+            }
         }
         return gameWorld;
     }

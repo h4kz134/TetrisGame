@@ -4,8 +4,10 @@ import com.golden.gamedev.GameEngine;
 import com.golden.gamedev.GameObject;
 import com.golden.gamedev.object.Sprite;
 import com.golden.gamedev.object.background.ImageBackground;
+import com.golden.gamedev.object.font.SystemFont;
 import com.golden.gamedev.util.ImageUtil;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -31,6 +33,8 @@ public class MakeGame extends GameObject {
     private Sprite storedPiece2;
     private Sprite storedPiece3;
 
+    private SystemFont text;
+
     //Buttons
     private Sprite resumeButton;
     private Sprite restartButton;
@@ -44,10 +48,16 @@ public class MakeGame extends GameObject {
     private ArrayList<BufferedImage> nextBlocks;
     private BufferedImage pauseImage;
     private BufferedImage gameOverImage;
+    private BufferedImage resumeImage;
+    private BufferedImage resumeHighlight;
+    private BufferedImage exitImage;
+    private BufferedImage exitHighlight;
+    private BufferedImage restartImage;
+    private BufferedImage restartHighlight;
 
     //GAME SETTINGS
     private final GameSettings settings;
-    private final int DELAY = 100;
+    private int DELAY;
     private final int KEY_DELAY = 12;
 
     //Counters
@@ -76,31 +86,33 @@ public class MakeGame extends GameObject {
 
         world = new GameWorld(settings.getHandicap(), new int[9]);
 
-        //ADD IF EXTREME MODE LATER
-        world.getPieceSet().addPiece(new boolean[][]{
-            {true, true, true},
-            {true, true, true}
-        });
-        world.getPieceSet().addPiece(new boolean[][]{
-            {true, true, true, false},
-            {true, false, true, true}
-        });
+        DELAY = settings.getSpeed();
 
         switch (settings.getGameMode()) {
             case GameSettings.CLASSIC:
-                background = new ImageBackground(getImage("TetrisAssets/classicBackground.jpg"));
+                background = new ImageBackground(getImage("TetrisAssets/classicBackground.png"));
                 break;
             case GameSettings.EXTREME:
                 background = new ImageBackground(getImage("TetrisAssets/extremeBackground.png"));
+
+                world.getPieceSet().addPiece(new boolean[][]{
+                    {true, true, true},
+                    {true, true, true}
+                });
+                world.getPieceSet().addPiece(new boolean[][]{
+                    {true, true, true, false},
+                    {true, false, true, true}
+                });
                 break;
         }
-        
+
         pauseImage = getImage("TetrisAssets/pauseMenu.jpg");
         gameOverImage = getImage("TetrisAssets/gameOverMenu.jpg");
 
         initializeBorder();
         initializeBlockImages();
         initializeNextBlockImages();
+        initializeButtonImages();
         initializeBG();
 
         updateWorldSprites();
@@ -109,7 +121,13 @@ public class MakeGame extends GameObject {
         storedPiece2 = new Sprite(416, 256);
         storedPiece3 = new Sprite(416, 336);
 
+        resumeButton = new Sprite(192, 192);
+        restartButton = new Sprite(192, 256);
+        exitButton = new Sprite(192, 320);
+
         menuSprite = new Sprite(0, 0);
+
+        text = new SystemFont(new Font("Courier", Font.PLAIN, 72), Color.white);
 
         resetGame();
     }
@@ -141,6 +159,8 @@ public class MakeGame extends GameObject {
             updateWorldSprites();//Refresh
             updateNextPiecePreview();
             updateStoredPieces();
+        } else {
+            updateButtons(l);
         }
     }
 
@@ -154,6 +174,8 @@ public class MakeGame extends GameObject {
         storedPiece1.render(gd);
         storedPiece2.render(gd);
         storedPiece3.render(gd);
+        
+        text.drawString(gd, world.getGameScore() + "", 460, 530);
 
         //Render the game border
         for (Sprite s : gameBorder) {
@@ -166,9 +188,18 @@ public class MakeGame extends GameObject {
                 s.render(gd);
             }
         }
-        
-        if(gameStatus != INGAME) {
+
+        if (gameStatus != INGAME) {
             menuSprite.render(gd);
+            if (gameStatus == PAUSE) {
+                resumeButton.render(gd);
+            }
+            exitButton.render(gd);
+            restartButton.render(gd);
+            
+            if(gameStatus == GAMEOVER) {
+                text.drawString(gd, world.getGameScore() + "", 440, 540);
+            }
         }
 
     }
@@ -195,9 +226,9 @@ public class MakeGame extends GameObject {
                 keyTimer = (keyTimer + 1) % Math.min(KEY_DELAY, DELAY / 2);
             } else if (keyPressed(KeyEvent.VK_SPACE)) {
                 world.quickDrop();
-            } else if (keyPressed(KeyEvent.VK_SHIFT) && settings.getGameMode() == 1) {//DISABLE IN CLASSIC
+            } else if (keyPressed(KeyEvent.VK_SHIFT) && settings.isToggleStore()) {//DISABLE IN CLASSIC
                 world.pushPiece();
-            } else if (keyPressed(KeyEvent.VK_CONTROL) && settings.getGameMode() == 1) {//DISABLE IN CLASSIC
+            } else if (keyPressed(KeyEvent.VK_CONTROL) && settings.isToggleStore()) {//DISABLE IN CLASSIC
                 world.pullPiece();
             } else if (keyPressed(KeyEvent.VK_ESCAPE)) {
                 menuSprite.setActive(true);
@@ -212,12 +243,32 @@ public class MakeGame extends GameObject {
                 menuSprite.setActive(false);
                 gameStatus = INGAME;
             }
+            if (click()) {
+                if (checkPosMouse(resumeButton, true)) {
+                    gameStatus = INGAME;
+                } else if (checkPosMouse(restartButton, true)) {
+                    resetGame();
+                    world.resetGame(settings.getHandicap());
+                } else if (checkPosMouse(exitButton, true)) {
+                    parent.nextGameID = 0;
+                    finish();
+                }
+            }
 
         } else if (gameStatus == GAMEOVER) {
             if (keyPressed(KeyEvent.VK_ESCAPE)) {
                 gameStatus = INGAME;
                 resetGame();
                 world.resetGame(settings.getHandicap());
+            }
+            if (click()) {
+                if (checkPosMouse(restartButton, true)) {
+                    resetGame();
+                    world.resetGame(settings.getHandicap());
+                } else if (checkPosMouse(exitButton, true)) {
+                    parent.nextGameID = 0;
+                    finish();
+                }
             }
         }
     }
@@ -306,6 +357,26 @@ public class MakeGame extends GameObject {
         }
     }
 
+    public void updateButtons(long l) {
+        if (checkPosMouse(resumeButton, true)) {
+            resumeButton.setImage(resumeHighlight);
+        } else {
+            resumeButton.setImage(resumeImage);
+        }
+
+        if (checkPosMouse(exitButton, true)) {
+            exitButton.setImage(exitHighlight);
+        } else {
+            exitButton.setImage(exitImage);
+        }
+
+        if (checkPosMouse(restartButton, true)) {
+            restartButton.setImage(restartHighlight);
+        } else {
+            restartButton.setImage(restartImage);
+        }
+    }
+
     //Initialize the block images.
     private void initializeBlockImages() {
         blocks.add(getImage("TetrisAssets/PrevBlock.png"));
@@ -335,5 +406,14 @@ public class MakeGame extends GameObject {
         nextBlocks.add(getImage("TetrisAssets/BlockPreview8.png"));
         nextBlocks.add(getImage("TetrisAssets/BlockPreview9.png"));
         nextBlocks.add(getImage("TetrisAssets/BlockPreview.png"));
+    }
+
+    private void initializeButtonImages() {
+        resumeImage = getImage("TetrisAssets/buttons/resume.jpg");
+        resumeHighlight = getImage("TetrisAssets/buttons/highlight/resumesel.jpg");
+        exitImage = getImage("TetrisAssets/buttons/exit.jpg");
+        exitHighlight = getImage("TetrisAssets/buttons/highlight/exitsel.jpg");
+        restartImage = getImage("TetrisAssets/buttons/restart.jpg");
+        restartHighlight = getImage("TetrisAssets/buttons/highlight/restartsel.jpg");
     }
 }
